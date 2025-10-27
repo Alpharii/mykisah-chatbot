@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "ai-chat/config"
+	"ai-chat/config"
 	"log"
 	"os"
 
@@ -14,7 +14,7 @@ func main(){
 		log.Fatal("cannot load encv")
 	}
 
-	// config.ConnectDB()
+	config.ConnectDB()
 
 	app:= fiber.New()
 
