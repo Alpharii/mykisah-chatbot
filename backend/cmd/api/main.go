@@ -2,10 +2,10 @@ package main
 
 import (
 	"ai-chat/config"
+	"ai-chat/internal/router"
 	"log"
 	"os"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
 
@@ -14,13 +14,8 @@ func main(){
 		log.Fatal("cannot load encv")
 	}
 
-	config.ConnectDB()
+	db := config.ConnectDB()
+	app := router.InitRouter(db)
 
-	app:= fiber.New()
-
-	app.Get("/", func (c*fiber.Ctx) error {
-		return c.JSON("hi from backend")
-	})
-
-	log.Fatal(app.Listen(":"+ os.Getenv("PORT")))
+	app.Listen(":" + os.Getenv("PORT"))
 }

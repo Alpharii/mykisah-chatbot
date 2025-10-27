@@ -9,9 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func ConnectDB(){
+func ConnectDB() *gorm.DB{
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -27,5 +25,5 @@ func ConnectDB(){
 		log.Fatal("error connecting to db")
 	}
 
-	DB = db
+	return db
 }
