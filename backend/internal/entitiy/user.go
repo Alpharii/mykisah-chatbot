@@ -9,10 +9,10 @@ import (
 
 type User struct{
 	gorm.Model
-	ID			uint
-	Username	string
-	Email		string
-	Password	string
+	ID			uint			`gorm:"primarykey"`
+	Username  string         	`gorm:"size:100;not null"`
+	Email     string         	`gorm:"size:100;uniqueIndex;not null"`
+	Password  string         	`gorm:"size:255;not null"`
 	IsActive	bool
 	ActivatedAt	sql.NullTime
 	CreatedAt	time.Time
