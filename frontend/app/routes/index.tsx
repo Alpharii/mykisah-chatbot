@@ -8,6 +8,10 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function loader({params}: Route.LoaderArgs){
+    
+}
+
 export default function Home() {
   return <Welcome />;
 }

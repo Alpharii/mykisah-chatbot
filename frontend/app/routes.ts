@@ -12,7 +12,7 @@ export default [
     // route("register", "routes/_preauth/register.tsx"),
   ]),
   ...prefix("", [
-    // index("routes/_postauth/home.tsx"),
+    index("routes/index.tsx"),
     layout("routes/_postauth/layout.tsx", [
       route("dashboard", "routes/_postauth/dashboard.tsx"),
     ]),
