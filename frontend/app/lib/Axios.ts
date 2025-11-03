@@ -11,7 +11,7 @@ export const tokenCookie = createCookie("token", {
 })
 
 export const apiClient = axios.create({
-    baseURL: `${import.meta.env.API_URL}/api`,
+    baseURL: `${import.meta.env.VITE_API_URL}/api`,
     timeout: 10_000,
     withCredentials: true,
 })

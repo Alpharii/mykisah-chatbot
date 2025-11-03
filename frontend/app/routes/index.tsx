@@ -1,5 +1,7 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
+import { tokenCookie } from "~/lib/Axios";
+import { redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,10 +10,11 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({params}: Route.LoaderArgs){
-    
-}
-
-export default function Home() {
-  return <Welcome />;
+export async function loader({request}: Route.LoaderArgs){
+  console.log('request', request)
+  const cookie = request.headers.get("cookie")
+  const token = await tokenCookie.parse(cookie)
+  if(!token) return redirect("/login")
+  
+  return redirect("/dashboard")
 }
