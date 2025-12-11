@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Eye, EyeOff, Lock, LogIn, User } from "lucide-react";
 import { useState } from "react";
-import { Form, Link, redirect, useActionData, type ActionFunctionArgs } from "react-router";
+import { Form, redirect, useActionData, type ActionFunctionArgs } from "react-router";
 import { apiClient, tokenCookie } from "~/lib/Axios";
 import { darkTheme } from "~/lib/theme";
 
@@ -32,14 +32,9 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const res = await apiClient.post("/auth/login", { email, password });
-    const token = res.data.token;
+    const res = await apiClient.post("/auth/register", { email, password });
 
-    return redirect("/dashboard", {
-      headers: {
-        "Set-Cookie": await tokenCookie.serialize(token),
-      },
-    });
+    return redirect("/login")
   } catch (error: any) {
     console.log('err', error)
     const message =
@@ -99,10 +94,10 @@ export default function LoginPage() {
             <Box textAlign="center" mb={4}>
               <LogIn size={42} color="#3b82f6" />
               <Typography variant="h5" fontWeight="bold" mt={2}>
-                Welcome Back
+                Welcome to Ai Chat
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Sign in to your account
+                Register your account
               </Typography>
             </Box>
 
@@ -184,15 +179,13 @@ export default function LoginPage() {
               mt={3}
             >
               Don’t have an account?{" "}
-              <Link to={"/register"}>
-                <Typography
-                  component="span"
-                  color="primary"
-                  sx={{ cursor: "pointer" }}
-                >
-                  Sign up
-                </Typography>
-              </Link>
+              <Typography
+                component="span"
+                color="primary"
+                sx={{ cursor: "pointer" }}
+              >
+                Sign up
+              </Typography>
             </Typography>
           </Paper>
         </Box>

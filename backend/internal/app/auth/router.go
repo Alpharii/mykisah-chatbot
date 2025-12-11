@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"ai-chat/internal/app/auth/controller"
+	"ai-chat/internal/app/auth/authController"
 	"ai-chat/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,14 +12,14 @@ func AuthRouter(router fiber.Router, db *gorm.DB) {
 	auth := router.Group("/auth")
 
 	auth.Post("/login", func(c *fiber.Ctx) error {
-		return controller.Login(c, db)
+		return authController.Login(c, db)
 	})
 	auth.Post("/register", func(c *fiber.Ctx) error {
-		return controller.Register(c, db)
+		return authController.Register(c, db)
 	})
 
 	protected := auth.Group("/me", middleware.Protected())
 	protected.Get("/", func(c *fiber.Ctx) error {
-    	return controller.GetMe(c, db)
+    	return authController.GetMe(c, db)
 	})
 }

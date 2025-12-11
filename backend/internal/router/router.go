@@ -2,6 +2,7 @@ package router
 
 import (
 	"ai-chat/internal/app/auth"
+	"ai-chat/internal/app/chat"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -16,6 +17,7 @@ func InitRouter(db *gorm.DB) *fiber.App {
 	})
 	
 	auth.AuthRouter(router, db)
+	chat.ChatRouter(router, db)
 
 	return app
 }

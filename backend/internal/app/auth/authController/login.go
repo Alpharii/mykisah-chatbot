@@ -1,7 +1,7 @@
-package controller
+package authController
 
 import (
-	"ai-chat/internal/entitiy"
+	"ai-chat/internal/entity"
 	"ai-chat/utils"
 	"os"
 	"strconv"
@@ -22,7 +22,7 @@ func Login(c*fiber.Ctx, db*gorm.DB) error {
 		return  err
 	}
 
-	user := entitiy.User{
+	user := entity.User{
 		Email: payload.Email,
 	}
 

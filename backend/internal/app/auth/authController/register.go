@@ -1,7 +1,7 @@
-package controller
+package authController
 
 import (
-	"ai-chat/internal/entitiy"
+	"ai-chat/internal/entity"
 	"ai-chat/utils"
 	"time"
 
@@ -26,7 +26,7 @@ func Register(c*fiber.Ctx, db*gorm.DB) error {
 		return err
 	}
 	
-	user := entitiy.User{
+	user := entity.User{
 		Username: payload.Username,
 		Password: hashedPass,
 		Email: payload.Email,

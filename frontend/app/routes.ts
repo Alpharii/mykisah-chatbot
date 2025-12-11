@@ -9,7 +9,7 @@ import {
 export default [
     layout("routes/_preauth/layout.tsx", [
     route("login", "routes/_preauth/login.tsx"),
-    // route("register", "routes/_preauth/register.tsx"),
+    route("register", "routes/_preauth/register.tsx"),
   ]),
   ...prefix("", [
     index("routes/index.tsx"),

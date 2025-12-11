@@ -1,6 +1,7 @@
 package config
 
 import (
+	"ai-chat/internal/entity"
 	"fmt"
 	"log"
 	"os"
@@ -20,6 +21,12 @@ func ConnectDB() *gorm.DB{
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	db.AutoMigrate(
+		&entity.User{},
+		&entity.ChatSession{},
+		&entity.ChatMessage{},
+	)
 
 	if err != nil {
 		log.Fatal("error connecting to db")
