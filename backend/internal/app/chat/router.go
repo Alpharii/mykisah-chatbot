@@ -14,4 +14,12 @@ func ChatRouter(router fiber.Router, db *gorm.DB){
 	routes.Post("/session/new", func(c *fiber.Ctx) error {
 		return chatController.NewChatSession(c, db)
 	})
+
+	routes.Post("/send", func(c *fiber.Ctx) error {
+		return chatController.SendChat(c, db)
+	})
+
+	routes.Get("/stream", func(c *fiber.Ctx) error {
+		return chatController.StreamAiChat(c, db)
+	})
 }

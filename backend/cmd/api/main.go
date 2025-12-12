@@ -14,6 +14,9 @@ func main(){
 		log.Fatal("cannot load encv")
 	}
 
+	config.InitGemini()
+
+
 	db := config.ConnectDB()
 	app := router.InitRouter(db)
 
