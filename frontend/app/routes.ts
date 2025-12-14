@@ -14,7 +14,8 @@ export default [
   ...prefix("", [
     index("routes/index.tsx"),
     layout("routes/_postauth/layout.tsx", [
-      route("dashboard", "routes/_postauth/dashboard.tsx"),
+      route("chat", "routes/_postauth/chat.tsx"),
+      route("chat/:id", "routes/_postauth/chat.$id.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;

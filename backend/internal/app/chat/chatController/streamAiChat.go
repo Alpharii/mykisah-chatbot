@@ -16,13 +16,16 @@ import (
 
 func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
 	sessionId, _ := strconv.Atoi(c.Query("session_id"))
-	userMessage := c.Query("message")
+	messageId := c.Query("message_id")
 	
 	if sessionId == 0 {
     return c.Status(400).JSON(fiber.Map{
         "error": "session_id is required",
     })
 	}
+
+	var userMessage *entity.ChatMessage
+	db.Where("id = ?", messageId).First(&userMessage)
 
 	var msgs []entity.ChatMessage
 	db.Where("session_id = ?", sessionId).Order("id ASC").Find(&msgs)
@@ -51,7 +54,7 @@ func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
 		return c.Status(500).SendString("Error creating chat session: " + err.Error())
 	}
 
-	stream := chat.SendMessageStream(ctx, genai.Part{Text: userMessage})
+	stream := chat.SendMessageStream(ctx, genai.Part{Text: userMessage.Content})
 	fullResponse := ""
 
 	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {

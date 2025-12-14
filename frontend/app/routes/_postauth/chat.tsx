@@ -1,4 +1,4 @@
-export default function Dashboard() {
+export default function Chat() {
   return (
     <div>
         <h1>testes</h1>

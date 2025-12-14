@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
+import Sidebar from "~/components/Sidebar";
 import setApiToken, { apiClient, tokenCookie } from "~/lib/Axios";
 
 export async function loader({request}: LoaderFunctionArgs){
@@ -9,16 +10,18 @@ export async function loader({request}: LoaderFunctionArgs){
 
   setApiToken(token)
   const user = await apiClient.get("/auth/me")
-  return user.data
+  const chatSession = await apiClient.get("/chat/session")
+  return {user: user.data, chatSession: chatSession.data}
 }
 
 export default function PostAuthLayout() {
-  const user = useLoaderData<typeof loader>()
-  console.log('user', user)
+  const {user, chatSession} = useLoaderData<typeof loader>()
   return (
-    <div className="">
-        <h1>postauth</h1>
+    <div className="flex">
+      <Sidebar chatSession={chatSession} />
+      <main className="flex-1 h-screen overflow-y-auto p-4">
         <Outlet />
+      </main>
     </div>
   )
 }

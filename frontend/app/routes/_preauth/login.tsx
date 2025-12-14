@@ -35,7 +35,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const res = await apiClient.post("/auth/login", { email, password });
     const token = res.data.token;
 
-    return redirect("/dashboard", {
+    return redirect("/chat", {
       headers: {
         "Set-Cookie": await tokenCookie.serialize(token),
       },

@@ -1,5 +1,4 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
 import { tokenCookie } from "~/lib/Axios";
 import { redirect } from "react-router";
 
@@ -16,5 +15,5 @@ export async function loader({request}: Route.LoaderArgs){
   const token = await tokenCookie.parse(cookie)
   if(!token) return redirect("/login")
   
-  return redirect("/dashboard")
+  return redirect("/chat")
 }
