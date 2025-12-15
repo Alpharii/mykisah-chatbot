@@ -19,7 +19,7 @@ func GetChatSessionByUser(c *fiber.Ctx, db *gorm.DB) error {
 	}
 
 	var chatSession []entity.ChatSession
-	if err := db.Where("user_id = ?", userId).Find(&chatSession).Error; err != nil{
+	if err := db.Where("user_id = ?", userId).Order("ID desc").Find(&chatSession).Error; err != nil{
 		return c.Status(404).JSON(fiber.Map{"error" : "not found"})
 	}
 

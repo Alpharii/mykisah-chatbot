@@ -16,6 +16,7 @@ export default [
     layout("routes/_postauth/layout.tsx", [
       route("chat", "routes/_postauth/chat.tsx"),
       route("chat/:id", "routes/_postauth/chat.$id.tsx"),
+      route("chat/new", "routes/_postauth/action/chat.new.tsx")
     ]),
   ]),
 ] satisfies RouteConfig;

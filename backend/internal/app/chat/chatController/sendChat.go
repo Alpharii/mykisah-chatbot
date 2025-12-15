@@ -35,16 +35,22 @@ func SendChat(c *fiber.Ctx, db *gorm.DB)error{
 		return c.Status(500).JSON(fiber.Map{"error": "failded to create chat message"})
 	}
 
+	updateSession := map[string]interface{}{
+		"updated_at": time.Now(),
+	}
+
 	if (session.Title == ""){
 		title := payload.Message
 		if len(title) > 50 {
 			title = title[:50] + "..."
 		}
+		updateSession["title"] = title
 
-		db.Model(&session).Updates(map[string]interface{}{
-			"title":      title,
-			"updated_at": time.Now(),
-		})
+		if err := db.Model(&entity.ChatSession{}).
+			Where("id = ?", payload.SessionId).
+			Updates(updateSession).Error; err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "failed to update session"})
+		}
 	}
 
 	return c.Status(201).JSON(fiber.Map{
