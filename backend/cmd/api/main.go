@@ -16,7 +16,6 @@ func main(){
 
 	config.InitGemini()
 
-
 	db := config.ConnectDB()
 	app := router.InitRouter(db)
 

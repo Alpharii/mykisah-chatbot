@@ -3,7 +3,6 @@ package chatController
 import (
 	"ai-chat/config"
 	"ai-chat/internal/entity"
-	"bufio"
 	"context"
 	"fmt"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 )
 
 func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
+	fmt.Println("hitted")
 	sessionId, _ := strconv.Atoi(c.Query("session_id"))
 	messageId := c.Query("message_id")
 	
@@ -54,48 +54,39 @@ func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
 		return c.Status(500).SendString("Error creating chat session: " + err.Error())
 	}
 
-	stream := chat.SendMessageStream(ctx, genai.Part{Text: userMessage.Content})
-	fullResponse := ""
+	resp, err := chat.Models.GenerateContent(
+		ctx,
+		"gemini-2.5-flash",
+		genai.Text(userMessage.Content),
+		config.GeminiConfig,
+	)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
 
-	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
-
-		for chunk := range stream {
-			if chunk == nil {
-				continue
-			}
-			if len(chunk.Candidates) == 0 {
-				continue
-			}
-			cand := chunk.Candidates[0]
-			if cand.Content == nil {
-				continue
-			}
-			if len(cand.Content.Parts) == 0 {
-				continue
-			}
-			for _, p := range cand.Content.Parts {
-				if p == nil || p.Text == "" {
-					continue
-				}
-
+	var fullResponse string
+	for _, cand := range resp.Candidates {
+		if cand.Content == nil {
+			continue
+		}
+		for _, p := range cand.Content.Parts {
+			if p.Text != "" {
 				fullResponse += p.Text
-				fmt.Fprintf(w, "data: %s\n\n", p.Text)
-				w.Flush()
 			}
 		}
+	}
 
+	aiMsg := entity.ChatMessage{
+		SessionID: uint(sessionId),
+		Role:      "assistant",
+		Content:   fullResponse,
+		CreatedAt: time.Now(),
+	}
+	db.Create(&aiMsg)
 
-		aiMsg := entity.ChatMessage{
-			SessionID: uint(sessionId),
-			Role:      "assistant",
-			Content:   fullResponse,
-			CreatedAt: time.Now(),
-		}
-		db.Create(&aiMsg)
-
-		fmt.Fprintf(w, "event: done\ndata: end\n\n")
-		w.Flush()
+	return c.JSON(fiber.Map{
+		"message": aiMsg,
 	})
-
-	return nil
 }

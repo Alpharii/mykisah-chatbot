@@ -33,7 +33,7 @@ func InitGemini() {
     // System prompt global
     GeminiConfig = &genai.GenerateContentConfig{
         SystemInstruction: genai.NewContentFromText(
-            "You are profesional ai",
+            "Kamu adalah guru coding profesional",
             genai.RoleUser,
         ),
     }

@@ -18,7 +18,6 @@ import { darkTheme } from "~/lib/theme";
 
 
 export async function action({ request }: ActionFunctionArgs) {
-  console.log('action', import.meta.env.API_URL)
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
