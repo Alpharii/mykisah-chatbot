@@ -26,6 +26,7 @@ func ConnectDB() *gorm.DB{
 		&entity.User{},
 		&entity.ChatSession{},
 		&entity.ChatMessage{},
+		&entity.AiRateLimiter{},
 	)
 
 	if err != nil {

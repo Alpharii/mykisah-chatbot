@@ -3,6 +3,7 @@ package chatController
 import (
 	"ai-chat/config"
 	"ai-chat/internal/entity"
+	ratelimiter "ai-chat/utils/rateLimiter"
 	"context"
 	"fmt"
 	"strconv"
@@ -22,6 +23,30 @@ func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
     return c.Status(400).JSON(fiber.Map{
         "error": "session_id is required",
     })
+	}
+
+	// pastikan limiter ada
+	if err := ratelimiter.EnsureAiRateLimiter(db); err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": "failed to init ai limiter",
+		})
+	}
+
+	allowed, msg, err := ratelimiter.CheckAiRateLimit(db)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if !allowed {
+		// return sebagai pesan AI
+		return c.JSON(fiber.Map{
+			"message": fiber.Map{
+				"role":    "assistant",
+				"content": msg,
+			},
+		})
 	}
 
 	var userMessage *entity.ChatMessage
@@ -44,15 +69,13 @@ func StreamAiChat(c *fiber.Ctx, db *gorm.DB) error {
 	c.Set("Connection", "keep-alive")
 
 	ctx := context.Background()
-	chat, err := config.GeminiClient.Chats.Create(
+
+	chat, _ := config.GeminiClient.Chats.Create(
 		ctx,
 		"gemini-2.5-flash",
 		nil,
 		history,
 	)
-	if err != nil {
-		return c.Status(500).SendString("Error creating chat session: " + err.Error())
-	}
 
 	resp, err := chat.Models.GenerateContent(
 		ctx,
