@@ -16,6 +16,8 @@ type ChatMessage = {
   Role: "user" | "assistant"
   Content: string
   CreatedAt?: string
+  Error?: boolean
+  ClientOnly?: boolean
 }
 
 export async function loader({request, params}: LoaderFunctionArgs) {
@@ -27,15 +29,19 @@ export async function loader({request, params}: LoaderFunctionArgs) {
 
 export default function ChatDetails() {
     const params = useParams()
-    const initialMessages = useLoaderData() as ChatMessage[]
-    const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
+    const dbMessages = useLoaderData() as ChatMessage[]
+    const [messages, setMessages] = useState<ChatMessage[]>(dbMessages)
     const [input, setInput] = useState("")
     const bottomRef = useRef<HTMLDivElement>(null)
-    const sessionId = Number(params.id)    
+    const sessionId = Number(params.id)
 
     useEffect(() => {
-    setMessages(initialMessages)
-    }, [initialMessages])
+      setMessages(prev => {
+        const clientOnlyMessages = prev.filter(m => m.ClientOnly)
+        return [...dbMessages, ...clientOnlyMessages]
+      })
+    }, [dbMessages])
+
 
 
     useEffect(() => {
@@ -43,42 +49,63 @@ export default function ChatDetails() {
     }, [messages])
 
     async function handleSend() {
-        if (!input.trim()) return
+      if (!input.trim()) return
 
-        const userMessage: ChatMessage = {
-            SessionID: sessionId,
-            Role: "user",
-            Content: input,
+      const userMessage: ChatMessage = {
+        SessionID: sessionId,
+        Role: "user",
+        Content: input,
+      }
+
+      setMessages(prev => [...prev, userMessage])
+      setInput("")
+
+      const res = await apiClient.post("/chat/send", {
+        sessionId,
+        message: userMessage.Content,
+      })
+
+      // ✅ placeholder HARUS ClientOnly
+      const tempAiMessage: ChatMessage = {
+        SessionID: sessionId,
+        Role: "assistant",
+        Content: "",
+        ClientOnly: true,
+      }
+
+      setMessages(prev => [...prev, tempAiMessage])
+
+      const aiRes = await apiClient.get(res.data.stream_url)
+
+      setMessages(prev => {
+        const copy = [...prev]
+        const lastIndex = copy
+          .map(m => m.ClientOnly)
+          .lastIndexOf(true)
+
+        if (lastIndex !== -1) {
+          copy[lastIndex] = {
+            ...aiRes.data.message,
+            ClientOnly: true,
+          }
         }
 
-        setMessages(prev => [...prev, userMessage])
-        setInput("")
-
-        // kirim ke backend
-        const res = await apiClient.post("/chat/send", {
-            sessionId,
-            message: userMessage.Content,
-        })
-
-        // placeholder AI
-        const tempAiMessage: ChatMessage = {
-            SessionID: sessionId,
-            Role: "assistant",
-            Content: "",
-        }
-
-        setMessages(prev => [...prev, tempAiMessage])
-
-        // ambil response AI (non-stream)
-        const aiRes = await apiClient.get(res.data.stream_url)
-
-        // 🔥 REPLACE placeholder terakhir
-        setMessages(prev => {
-            const copy = [...prev]
-            copy[copy.length - 1] = aiRes.data.message
-            return copy
-        })
+        return copy
+      })
     }
+
+
+    useEffect(() => {
+      const last = messages.at(-1)
+      if (last?.Error) {
+        const timer = setTimeout(() => {
+          setMessages(prev => prev.filter(m => m !== last))
+        }, 5000)
+
+        return () => clearTimeout(timer)
+      }
+    }, [messages])
+
 
 
   return (
@@ -105,7 +132,11 @@ export default function ChatDetails() {
                     : "bg-gray-800 text-gray-100"}
                 `}
               >
-                {msg.Content || <span className="opacity-50">AI sedang mengetik…</span>}
+                {msg.Content || (
+                  msg.Error
+                    ? null
+                    : <span className="opacity-50">AI sedang mengetik…</span>
+                )}
               </Paper>
             </Box>
           )
